@@ -2,7 +2,7 @@
 
 An interactive dashboard that pulls **real federal court opinions** from the
 [CourtListener API](https://www.courtlistener.com/) and visualizes them by
-charge/topic type, court, and year.
+charge/topic type, court, and year. Deployed on https://court-data.streamlit.app/.
 
 Built with Python · Streamlit · Plotly · CourtListener (Free Law Project)
 
@@ -19,33 +19,6 @@ Built with Python · Streamlit · Plotly · CourtListener (Free Law Project)
   - Court activity heatmap (when viewing all circuits)
 - Browseable case table with direct links to full opinions
 - CSV export
-
----
-
-## Setup (5 minutes)
-
-### 1. Make sure Python is installed
-```bash
-python --version   # should be 3.10 or higher
-```
-
-### 2. Create a virtual environment (keeps your packages tidy)
-```bash
-python -m venv venv
-source venv/bin/activate        # Mac/Linux
-venv\Scripts\activate           # Windows
-```
-
-### 3. Install dependencies
-```bash
-pip install -r requirements.txt
-```
-
-### 4. Run the app
-```bash
-streamlit run app.py
-```
-Your browser will open automatically at `http://localhost:8501`.
 
 ---
 
