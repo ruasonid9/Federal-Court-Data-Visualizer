@@ -67,7 +67,7 @@ COURTS = {
 @st.cache_data(ttl=600)   # cache results for 10 minutes so we don't hammer the API
 def fetch_cases(query: str, court_slug: str | None,
                 year_start: int, year_end: int,
-                max_pages: int = 5) -> pd.DataFrame:
+                max_pages: int = 20) -> pd.DataFrame:
     """
     Hit the CourtListener search API and return a tidy DataFrame.
     We page through results (up to max_pages) to get enough data to chart.
