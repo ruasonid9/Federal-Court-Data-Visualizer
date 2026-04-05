@@ -80,6 +80,7 @@ def fetch_cases(query: str, court_slug: str | None,
         "filed_after":  f"{year_start}-01-01",
         "filed_before": f"{year_end}-12-31",
         "format":      "json",
+        "page_size": 50,
     }
     if court_slug:
         params["court"] = court_slug
