@@ -15,6 +15,15 @@ import plotly.express as px
 import plotly.graph_objects as go
 from datetime import date, datetime
 import time
+import os
+from dotenv import load_dotenv
+
+load_dotenv()  # reads local .env file
+
+try:
+    token = st.secrets["COURTLISTENER_TOKEN"]
+except:
+    token = os.getenv("COURTLISTENER_TOKEN")
 
 # ── Page config ──────────────────────────────────────────────────────────────
 st.set_page_config(
@@ -86,9 +95,9 @@ def fetch_cases(query: str, court_slug: str | None,
         params["court"] = court_slug
 
     # Optional: add your CourtListener token here for higher rate limits
-    headers = {
-        # "Authorization": "Token YOUR_TOKEN_HERE"
-    }
+    headers = {}
+    if token:
+        headers["Authorization"] = f"Token {token}"
 
     next_url = BASE_URL
     for page in range(max_pages):
