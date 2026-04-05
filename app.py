@@ -182,7 +182,7 @@ col1, col2, col3 = st.columns(3)
 col1.metric("Cases Analyzed", f"{len(df):,}")
 col2.metric("Courts Represented", df["court"].nunique())
 col3.metric("Year Span", f"{df['year'].min()} – {df['year'].max()}")
-
+st.caption("ℹ️ Cases analyzed may be less than the max due to records with missing dates or non-federal courts being filtered out during processing.")
 st.divider()
 
 # ── Charts ────────────────────────────────────────────────────────────────────
