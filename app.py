@@ -78,7 +78,6 @@ def fetch_cases(query: str, court_slug: str | None,
                 year_start: int, year_end: int) -> tuple[pd.DataFrame, int]:
     """Returns a count of how many cases were fetched (up to 400) and how many actually exist that are shown as related to the search"""
     all_results = []
-    total_count = 100
     params = {
         "q":           query,
         "type":        "o",                        # "o" = opinions
@@ -98,7 +97,7 @@ def fetch_cases(query: str, court_slug: str | None,
         
     next_url = BASE_URL
     first_page = True
-    while next_url:
+    while next_url and len(all_results) < max_results:
         try:
             resp = requests.get(next_url, params=params if first_page else {},
                                 headers=headers, timeout=10)
@@ -110,7 +109,6 @@ def fetch_cases(query: str, court_slug: str | None,
         data = resp.json()
 
         if first_page:
-            total_count = data.get("count", 0)
             first_page = False
             
         results = data.get("results", [])
@@ -143,7 +141,8 @@ def fetch_cases(query: str, court_slug: str | None,
         })
 
     df = pd.DataFrame(rows).dropna(subset=["date_filed"])
-    return df, total_count
+    df = df[~df["court"].str.contains("Ohio|State|Municipal|County", case=False, na=False)]
+    return df
 
 
 # ── Sidebar ───────────────────────────────────────────────────────────────────
@@ -162,7 +161,7 @@ with st.sidebar:
         max_value=date.today().year,
         value=(2015, date.today().year),
     )
-
+    max_results = st.slider("Max cases to fetch", min_value=100, max_value=10000, value=1000, step=200)
     st.divider()
     st.caption("Data from [CourtListener](https://www.courtlistener.com/) — Free Law Project")
     st.caption("Fetches up to 400 recent matching opinions.")
@@ -172,18 +171,17 @@ st.title("Federal Court Case Explorer")
 st.markdown(f"Showing **{charge_label}** cases · {court_label} · {year_range[0]}–{year_range[1]}")
 
 with st.spinner("Fetching cases from CourtListener…"):
-    df, total_count = fetch_cases(charge_query, court_slug, year_range[0], year_range[1])
+    df = fetch_cases(charge_query, court_slug, year_range[0], year_range[1], max_results)
 
 if df.empty:
     st.warning("No cases found. Try broadening the filters (wider year range or 'All Federal Circuits').")
     st.stop()
 
 # ── KPI Row ───────────────────────────────────────────────────────────────────
-col1, col2, col3, col4 = st.columns(4)
-col1.metric("Cases Fetched", f"{len(df):,}")
-col2.metric("Total Matching in Database", f"{total_count:,}")
-col3.metric("Courts Represented", df["court"].nunique())
-col4.metric("Year Span", f"{df['year'].min()} – {df['year'].max()}")
+col1, col2, col3 = st.columns(3)
+col1.metric("Cases Analyzed", f"{len(df):,}")
+col2.metric("Courts Represented", df["court"].nunique())
+col3.metric("Year Span", f"{df['year'].min()} – {df['year'].max()}")
 
 st.divider()
 
