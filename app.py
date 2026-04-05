@@ -163,7 +163,7 @@ with st.sidebar:
     )
     max_results = st.slider("Max cases to fetch", min_value=100, max_value=10000, value=1000, step=200)
     st.divider()
-    st.caption("Data from [CourtListener](https://www.courtlistener.com/) — Free Law Project")
+    st.caption("Data source: The Free Law Project. CourtListener API. Available from https://www.courtlistener.com/api/")
     st.caption("Fetches matching opinions based on user-inputted parameters.")
 
 # ── Main area ─────────────────────────────────────────────────────────────────
