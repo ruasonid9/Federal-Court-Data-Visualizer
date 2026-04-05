@@ -141,7 +141,7 @@ def fetch_cases(query: str, court_slug: str | None,
         })
 
     df = pd.DataFrame(rows).dropna(subset=["date_filed"])
-    df = df[~df["court"].str.contains("Ohio|State|Municipal|County", case=False, na=False)]
+    df = df[df["court"].str.contains("Circuit|District Court", case=False, na=False)] # whitelist for only federal courts
     return df
 
 
