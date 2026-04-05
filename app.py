@@ -75,7 +75,7 @@ COURTS = {
 # ── API helper ────────────────────────────────────────────────────────────────
 @st.cache_data(ttl=600)   # cache results for 10 minutes so we don't hammer the API
 def fetch_cases(query: str, court_slug: str | None,
-                year_start: int, year_end: int) -> tuple[pd.DataFrame, int]:
+                year_start: int, year_end: int, max_results: int = 1000) -> tuple[pd.DataFrame, int]:
     """Returns a count of how many cases were fetched (up to 400) and how many actually exist that are shown as related to the search"""
     all_results = []
     params = {
