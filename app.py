@@ -75,13 +75,10 @@ COURTS = {
 # ── API helper ────────────────────────────────────────────────────────────────
 @st.cache_data(ttl=600)   # cache results for 10 minutes so we don't hammer the API
 def fetch_cases(query: str, court_slug: str | None,
-                year_start: int, year_end: int,
-                max_pages: int = 20) -> pd.DataFrame:
-    """
-    Hit the CourtListener search API and return a tidy DataFrame.
-    We page through results (up to max_pages) to get enough data to chart.
-    """
+                year_start: int, year_end: int) -> tuple[pd.DataFrame, int]:
+    """Returns a count of how many cases were fetched (up to 400) and how many actually exist that are shown as related to the search"""
     all_results = []
+    total_count = 100
     params = {
         "q":           query,
         "type":        "o",                        # "o" = opinions
@@ -93,16 +90,17 @@ def fetch_cases(query: str, court_slug: str | None,
     }
     if court_slug:
         params["court"] = court_slug
-
-    # Optional: add your CourtListener token here for higher rate limits
+    
     headers = {}
     if token:
         headers["Authorization"] = f"Token {token}"
-
+        params["page_size"] = 100 # higher limit with token
+        
     next_url = BASE_URL
-    for page in range(max_pages):
+    first_page = True
+    while next_url:
         try:
-            resp = requests.get(next_url, params=params if page == 0 else {},
+            resp = requests.get(next_url, params=params if first_page else {},
                                 headers=headers, timeout=10)
             resp.raise_for_status()
         except requests.exceptions.RequestException as e:
@@ -110,6 +108,11 @@ def fetch_cases(query: str, court_slug: str | None,
             break
 
         data = resp.json()
+
+        if first_page:
+            total_count = data.get("count", 0)
+            first_page = False
+            
         results = data.get("results", [])
         if not results:
             break
@@ -118,8 +121,6 @@ def fetch_cases(query: str, court_slug: str | None,
 
         # Follow pagination
         next_url = data.get("next")
-        if not next_url:
-            break
         time.sleep(0.3)   # be polite to the API
 
     if not all_results:
@@ -142,7 +143,7 @@ def fetch_cases(query: str, court_slug: str | None,
         })
 
     df = pd.DataFrame(rows).dropna(subset=["date_filed"])
-    return df
+    return df, total_count
 
 
 # ── Sidebar ───────────────────────────────────────────────────────────────────
@@ -164,7 +165,7 @@ with st.sidebar:
 
     st.divider()
     st.caption("Data from [CourtListener](https://www.courtlistener.com/) — Free Law Project")
-    st.caption("Fetches up to ~500 recent matching opinions.")
+    st.caption("Fetches up to 400 recent matching opinions.")
 
 # ── Main area ─────────────────────────────────────────────────────────────────
 st.title("Federal Court Case Explorer")
@@ -178,10 +179,11 @@ if df.empty:
     st.stop()
 
 # ── KPI Row ───────────────────────────────────────────────────────────────────
-col1, col2, col3 = st.columns(3)
-col1.metric("Total Cases Found", f"{len(df):,}")
-col2.metric("Courts Represented", df["court"].nunique())
-col3.metric("Year Span", f"{df['year'].min()} – {df['year'].max()}")
+col1, col2, col3, col4 = st.columns(4)
+col1.metric("Cases Fetched", f"{len(df):,}")
+col2.metric("Total Matching in Database", f"{total_count:,}")
+col3.metric("Courts Represented", df["court"].nunique())
+col4.metric("Year Span", f"{df['year'].min()} – {df['year'].max()}")
 
 st.divider()
 
