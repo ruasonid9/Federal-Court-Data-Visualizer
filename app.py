@@ -119,7 +119,7 @@ def fetch_cases(query: str, court_slug: str | None,
 
         # Follow pagination
         next_url = data.get("next")
-        time.sleep(0.3)   # be polite to the API
+        time.sleep(0.1)   # be polite to the API
 
     if not all_results:
         return pd.DataFrame()
