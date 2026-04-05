@@ -172,7 +172,7 @@ st.title("Federal Court Case Explorer")
 st.markdown(f"Showing **{charge_label}** cases · {court_label} · {year_range[0]}–{year_range[1]}")
 
 with st.spinner("Fetching cases from CourtListener…"):
-    df = fetch_cases(charge_query, court_slug, year_range[0], year_range[1])
+    df, total_count = fetch_cases(charge_query, court_slug, year_range[0], year_range[1])
 
 if df.empty:
     st.warning("No cases found. Try broadening the filters (wider year range or 'All Federal Circuits').")
