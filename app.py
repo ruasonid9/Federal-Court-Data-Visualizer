@@ -161,7 +161,7 @@ with st.sidebar:
         max_value=date.today().year,
         value=(2015, date.today().year),
     )
-    max_results = st.slider("Max cases to fetch", min_value=100, max_value=5000, value=1000, step=100)
+    max_results = st.slider("Max cases to fetch", min_value=100, max_value=5000, value=200, step=100)
     st.divider()
     st.caption("Created by Luc Vulliez.")
     st.caption("Data source: The Free Law Project. CourtListener API. Available from https://www.courtlistener.com/api/")
