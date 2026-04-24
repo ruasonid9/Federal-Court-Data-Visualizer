@@ -75,7 +75,7 @@ COURTS = {
 # ── API helper ────────────────────────────────────────────────────────────────
 @st.cache_data(ttl=600)   # cache results for 10 minutes so we don't hammer the API
 def fetch_cases(query: str, court_slug: str | None,
-                year_start: int, year_end: int, max_results: int = 200) -> tuple[pd.DataFrame, int]:
+                year_start: int, year_end: int, max_results: int = 500) -> tuple[pd.DataFrame, int]:
     """Returns a count of how many cases were fetched (up to max_results) and how many actually exist that are shown as related to the search"""
     all_results = []
     params = {
@@ -161,7 +161,7 @@ with st.sidebar:
         max_value=date.today().year,
         value=(2015, date.today().year),
     )
-    max_results = st.slider("Max cases to fetch", min_value=100, max_value=5000, value=200, step=100)
+    max_results = st.slider("Max cases to fetch", min_value=100, max_value=5000, value=500, step=100)
     st.divider()
     st.caption("Created by Luc Vulliez.")
     st.caption("Data source: The Free Law Project. CourtListener API. Available from https://www.courtlistener.com/api/")
