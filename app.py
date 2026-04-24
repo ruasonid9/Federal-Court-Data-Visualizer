@@ -100,7 +100,7 @@ def fetch_cases(query: str, court_slug: str | None,
     while next_url and len(all_results) < max_results:
         try:
             resp = requests.get(next_url, params=params if first_page else {},
-                                headers=headers, timeout=10)
+                                headers=headers, timeout=30)
             resp.raise_for_status()
         except requests.exceptions.RequestException as e:
             st.error(f"API error: {e}")
